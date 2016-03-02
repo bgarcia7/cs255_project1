@@ -10,6 +10,11 @@ http://www.pyopenssl.org/en/latest/index.html
 https://github.com/msabramo/pyOpenSSL/blob/master/examples/certgen.py
 
 
+#=====[ Example on connecting to server via socket ]=====
+
+http://stackoverflow.com/questions/5755507/creating-a-raw-http-request-with-sockets
+
+
 
 #=====[ Required functionality [options] ]=====
 
