@@ -1,13 +1,31 @@
 from OpenSSL import SSL
 import socket
 import urlparse
+import utils as ut
+
+modes = {'tlsv1.0':SSL.TLSv1_METHOD,'tlsv1.1':SSL.TLSv1_1_METHOD,'tlsv1.2':SSL.TLSv1_2_METHOD,'sslv3':SSL.SSLv3_METHOD,'3':SSL.SSLv3_METHOD}
+
+def verify_callback(connection, x509, errnum, errdepth, ok):
+        if not ok:
+            ut.fail('Certificate is invalid')
+        return ok
 
 class Connection():
 
 	""" Class for experimenting with socket connections """
 
-	def __init__(self):
-		context = SSL.Context(SSL.TLSv1_2_METHOD)
+	def __init__(self, values):
+		context = SSL.Context(modes[values['mode']])
+		context.set_options(SSL.OP_NO_SSLv2)
+
+		if 'cacert' in values:
+			context.set_verify(SSL.VERIFY_PEER | SSL.VERIFY_FAIL_IF_NO_PEER_CERT, verify_callback)
+			context.load_verify_locations(values['cacert'])
+		
+		if 'ciphers' in values:
+			context.set_cipher_list(values['ciphers'])
+		
+
 		self.context = context
 		self.sock = SSL.Connection(context, socket.socket(socket.AF_INET, socket.SOCK_STREAM))
 
@@ -27,6 +45,7 @@ class Connection():
 		HOST = url.netloc  
 
 		self.sock.connect((HOST, port))
+		# self.evaluate_certificate()
 
 	def send(self, message="GET / HTTP/1.0\r\n\r\n"):
 
