@@ -15,8 +15,10 @@ class Connection():
 	""" Class for experimenting with socket connections """
 
 	def __init__(self, values):
+		
 		context = SSL.Context(modes[values['mode']])
 		context.set_options(SSL.OP_NO_SSLv2)
+
 
 		if 'cacert' in values:
 			context.set_verify(SSL.VERIFY_PEER | SSL.VERIFY_FAIL_IF_NO_PEER_CERT, verify_callback)
