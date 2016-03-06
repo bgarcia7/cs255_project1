@@ -46,6 +46,8 @@ class Connection():
 		#=====[ Get remote host ]=====
 		HOST = url.netloc  
 
+		print HOST, port
+
 		self.sock.connect((HOST, port))
 		# self.evaluate_certificate()
 
