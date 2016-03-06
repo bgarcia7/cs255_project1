@@ -55,13 +55,26 @@ http://stackoverflow.com/questions/5755507/creating-a-raw-http-request-with-sock
       If this option is used several times, the last one will be used.
 
 
+      Notes:
+      /usr/class/cs255/bin/curl --cacert stanford_cert.pem https://www.stanford.edu 
+        curl: (60) SSL certificate problem: self signed certificate in certificate chain
+
+      /usr/class/cs255/bin/curl --cacert ca_cert.pem https://www.yahoo.com
+        curl: (60) SSL certificate problem: unable to get local issuer certificate
+
+      /usr/class/cs255/bin/curl --cacert ca_cert.pem https://www.stanford.edu
+        Works fine
+
+
 --allow-stale-certs N. This option does not exist in curl but you will implement it in
 			scurl. When a user invokes scurl with this option with an argument N, your implementation
 			should accept a certificate C as valid if (a) C is an otherwise valid certificate that has expired
 			and (b) C expired within the past N days. The argument N to this option must be a nonnegative
 			integer. If this option is used several times, the last one will be used.
 
+      Notes:
       /usr/class/cs255/bin/curl https://expired.badssl.com/
+        curl: (60) SSL certificate problem: certificate has expired
 
 
 
