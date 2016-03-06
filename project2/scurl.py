@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 import sys
 import connect
 import utils as ut
@@ -40,12 +42,28 @@ def parse_flags(flags, mode):
 				values['cacert'] = flags[idx]
 				idx+=1
 
+			#=====[ Check if flag is specifying number of days to allow certs to be staled before invalidation ]=====
+			elif flag =='allow-stale-certs':
+				
+				idx+=1
+				num_days = int(flags[idx])
+				assert num_days > -1
+				values['num_days'] = num_days
+				idx+=1
+			
+			#=====[ Else return error ]=====
+			else:
+				ut.fail("Could not identify command " + flag)
+				return
+
+
 	values['mode'] = mode
 
 	return values
 
 if __name__ == "__main__":
 
+	#=====[ Assuming url comes last ]=====
 	url = sys.argv[-1]
 	flags = sys.argv[1:-1]
 
