@@ -3,6 +3,7 @@
 import sys
 import connect
 import utils as ut
+import sys
 
 modes = ['tlsv1.0','tlsv1.1','tlsv1.2','sslv3','3']
 mode = 'tlsv1.2'
@@ -64,6 +65,13 @@ def parse_flags(flags, mode):
 if __name__ == "__main__":
 
 	#=====[ Assuming url comes last ]=====
+	print '############################################################################'
+	
+	if len(sys.argv) < 2:
+		sys.stderr.write('USE STUFF')
+		print ''
+		sys.exit(1)
+
 	url = sys.argv[-1]
 	flags = sys.argv[1:-1]
 
