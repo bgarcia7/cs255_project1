@@ -22,7 +22,11 @@ def parse_flags(flags, mode):
 		flag = flags[idx]
 		
 		#=====[ Check to ensure flag is properly formatted ]=====
-		if '--' in flag [:2]:
+		if '-3' in flag:
+			mode = flag[1:]
+			idx += 1
+
+		elif '--' in flag[:2]:
 
 			flag = flag[2:]
 
@@ -70,8 +74,8 @@ def parse_flags(flags, mode):
 			
 			#=====[ Else return error ]=====
 			else:
-				ut.fail("Could not identify command " + flag)
-				return
+				sys.stderr.write("Flags corrupted\n")
+				sys.exit(1)
 
 	values['mode'] = mode
 
@@ -80,18 +84,15 @@ def parse_flags(flags, mode):
 if __name__ == "__main__":
 
 	try:
-
 		#=====[ Require arguments to be passed ]=====	
 		if len(sys.argv) < 2:
-			sys.stderr.write('USE STUFF\n')
+			sys.stderr.write('Provide an address\n')
 			sys.exit(1)
 
 		#=====[ Get url and options ]=====	
 		url = sys.argv[-1]
 		flags = sys.argv[1:-1]
-
 		initializations = parse_flags(flags, mode)
-
 		
 		#=====[ Instantiat connection object and connect ]=====
 		scurl = connect.Connection(url, initializations)
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 	
 	except Exception as e:
 
-		sys.stderr.write("Certificate could not be verified\n")
+		sys.stderr.write("Invalid protocol handling\n")
 		sys.exit(1)
 
 

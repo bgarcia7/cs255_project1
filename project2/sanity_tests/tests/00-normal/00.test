@@ -1,1 +1,3 @@
 https://sha256.badssl.com/
+
+diff curtest.txt sanity_tests/tests/04-proto/02.test.out

@@ -7,6 +7,7 @@ import utils as ut
 import sys
 from sys import stdout
 import datetime
+import re 
 
 modes = {'tlsv1.0':SSL.TLSv1_METHOD,'tlsv1.1':SSL.TLSv1_1_METHOD,'tlsv1.2':SSL.TLSv1_2_METHOD,'sslv3':SSL.SSLv3_METHOD,'3':SSL.SSLv3_METHOD}
 
@@ -91,19 +92,42 @@ class Connection():
 			else:
 				sys.stderr.write("Certificate is invalid\n")
 				sys.exit(1)
-			
-			# common_name = cert.get_subject().commonName.decode()
+		
+		#=====[ Check for valid common name ]=====
+		else: 
+
+			#=====[ Extract common name from cert ]=====
+			cert = self.client.get_peer_certificate()
+			common_name = cert.get_subject().commonName.decode()
+			regex = common_name.replace('.', r'\.').replace('*',r'[^\.]*') + '$'
+
+			if re.match(regex, HOST):
+				return 
+			else:
+				sys.stderr.write("Common name is invalid\n")
+				sys.exit(1)
 
 	def send(self, url):
-		message = "GET %s HTTP/1.0\r\n\r\n" % url
 
+		#=====[ Parse url ]=====
+		p_url = urlparse.urlparse(url)
+
+		path = p_url.path
+		if path == '':
+			path ='/'
+
+		#=====[ Get remote host ]=====
+		HOST = p_url.netloc
+
+		message = "GET %s HTTP/1.0\nHost: %s\nUser-Agent: KDOandBGAR/1.0\r\n\r\n" % (path, HOST)
 		""" Sends specified message; default is get request """
 
 		#=====[ Send request ]=====
 		self.client.send(message)
 		
 		#=====[ Print data while server has data to write ]=====
-		print self.client.recv(1000000)
+		data = self.client.recv(1000000)
+		print data[data.index('\r\n\r\n'):].strip()
 
 	def kill(self):
 
@@ -132,18 +156,27 @@ class Connection():
 				if datetime.datetime.now() > date + delta:
 					sys.stderr.write("Certificate is invalid\n")
 					sys.exit(1)
+				else:
+					ok = True
 
-		serial_number = x509.get_serial_number()
+		if ok:		
+			serial_number = x509.get_serial_number()
 
-		if self.crl != None:
-			print 'TESTING'
-			revoked_certs = self.crl.get_revoked()
-			for cert in revoked_certs:
-				if serial_number == int(cert.get_serial(),16):
-					sys.stderr.write("Certificate is invalid\n")
-					sys.exit(1)
+			#=====[ Check that cert is not on CRL ]=====
+			if self.crl != None:
+				
+				revoked_certs = self.crl.get_revoked()
+				for cert in revoked_certs:
+					
+					#=====[ Check if serial number equals that of revoked cert ]=====
+					if serial_number == int(cert.get_serial(),16):
+						sys.stderr.write("Certificate is invalid\n")
+						sys.exit(1)
 
-		return True
+			return True
+
+		else:
+			return False
 
 
 
