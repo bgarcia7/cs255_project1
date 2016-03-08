@@ -118,8 +118,11 @@ class Connection():
 			else:
 				#=====[ Check for matches in ASNs ]=====
 				for name in ASNs:
+					name = name.replace('*','')
+					if name in HOST_NAME:
+						continue 
 					if re.match(regex,name):
-						return
+						return 
 
 			raise ValueError('Mismatching common name')
 
