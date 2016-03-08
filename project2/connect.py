@@ -158,6 +158,7 @@ class Connection():
 				else:
 					sys.stdout.write(data)
 			except SSL.ZeroReturnError:
+				print
 				break
 			
 
