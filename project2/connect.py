@@ -96,12 +96,29 @@ class Connection():
 
 			#=====[ Extract common name from cert ]=====
 			cert = self.client.get_peer_certificate()
+			
+			#=====[ Extract ASNs ]=====
+			try:
+				ASN = cert.get_extension(8)
+				ASNs = ASN._subjectAltNameString().replace('DNS:','').split(',')
+			
+			except Exception as e:
+				pass
+
+
 			common_name = cert.get_subject().commonName.decode()
 			regex = common_name.replace('.', r'\.').replace('*',r'[^\.]*') + '$'
-			if re.match(regex, HOST):
+			regex = regex.replace('[^\.]*\.',r'([^\.]*\.)?')
+
+			if re.match(regex, HOST_NAME):
 				return 
 			else:
-				raise ValueError('Mismatching common name')
+				#=====[ Check for matches in ASNs ]=====
+				for name in ASNs:
+					if re.match(regex,name):
+						return
+
+			raise ValueError('Mismatching common name')
 
 
 	def send(self, url, port=443):
@@ -118,12 +135,18 @@ class Connection():
 		#=====[ Get remote host ]=====
 		HOST = p_url.netloc
 
+		cert = self.client.get_peer_certificate()
+		common_name = cert.get_subject().commonName.decode()
+
 		message = "GET %s HTTP/1.0\nHost: %s\nUser-Agent: KDOandBGAR/1.0\r\n\r\n" % (path, HOST)
+		print message
+
 		#=====[ Send request ]=====
 		self.client.send(message)
 		
 		#=====[ Print data while server has data to write ]=====
 		data = self.client.recv(100000000)
+		print data
 		print data[data.index('\r\n\r\n'):].strip()
 
 	def kill(self):

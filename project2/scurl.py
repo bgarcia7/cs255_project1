@@ -104,7 +104,7 @@ if __name__ == "__main__":
 		#=====[ Instantiat connection object and connect ]=====
 		scurl = connect.Connection(url, initializations)
 		scurl.connect(url=url)
-		
+
 		#=====[ Make GET request ]=====
 		scurl.send(url)
 
