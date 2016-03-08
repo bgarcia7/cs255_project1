@@ -39,7 +39,7 @@ def parse_flags(flags, mode):
 			elif flag == 'ciphers':
 				
 				idx += 1				
-				values['ciphers'] = cipher_list
+				values['ciphers'] =flags[idx]
 				idx+=1
 
 			#=====[ Checks if flag is specifying ca_cert to use for verification ]=====
@@ -83,16 +83,23 @@ def parse_flags(flags, mode):
 
 if __name__ == "__main__":
 
-	try:
-		#=====[ Require arguments to be passed ]=====	
-		if len(sys.argv) < 2:
-			sys.stderr.write('Provide an address\n')
-			sys.exit(1)
+	#=====[ Require arguments to be passed ]=====	
+	if len(sys.argv) < 2:
+		sys.stderr.write('Provide an address\n')
+		sys.exit(1)
 
+	try:
 		#=====[ Get url and options ]=====	
 		url = sys.argv[-1]
 		flags = sys.argv[1:-1]
 		initializations = parse_flags(flags, mode)
+
+	except Exception as e:
+
+		sys.stderr.write("Invalid use of options\n")
+		sys.exit(1)
+
+	try:
 		
 		#=====[ Instantiat connection object and connect ]=====
 		scurl = connect.Connection(url, initializations)
@@ -106,7 +113,8 @@ if __name__ == "__main__":
 	
 	except Exception as e:
 
-		sys.stderr.write("Invalid protocol handling\n")
+		sys.stderr.write("Invalid certifate\n")
 		sys.exit(1)
 
+	sys.exit(0)
 

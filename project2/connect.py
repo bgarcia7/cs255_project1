@@ -27,12 +27,10 @@ class Connection():
 
 		#=====[ Rehydrate public key certificate if given ]=====
 		if 'pub_str' in values:
-			
 			self.pub_cert = crypto.load_certificate(crypto.FILETYPE_PEM, values['pub_str'])
 
 		#=====[ If no pub key certificate, look for other options ]=====
 		else:
-
 			context.set_verify(SSL.VERIFY_PEER | SSL.VERIFY_FAIL_IF_NO_PEER_CERT, self.verify_callback)
 			self.pub_cert = None
 
@@ -65,23 +63,24 @@ class Connection():
 		#=====[ Parse url ]=====
 		p_url = urlparse.urlparse(url)
 
+		if p_url.port is not None:
+			port = p_url.port
+
 		#=====[ Get remote host ]=====
 		HOST = p_url.netloc
 		HOST_NAME = p_url.hostname  
 
 		#=====[ Make connction ]=====
-		self.sock.connect((HOST,port))
+		self.sock.connect((HOST_NAME,port))
 		self.client = SSL.Connection(self.context, self.sock)
 
 		#=====[ Set extension for SNI ]=====
 		self.client.set_connect_state()
 		self.client.set_tlsext_host_name(HOST_NAME)
-
 		self.client.do_handshake()
 
 		#=====[ Check digest of certificates if pinned public key speciifed ]=====
 		if self.pub_cert:
-
 			peer_cert = self.client.get_peer_certificate()
 
 			#=====[ Compare digests of each cert ]=====
@@ -90,8 +89,7 @@ class Connection():
 			
 			#=====[ if not exact match, return 'bad certificate']=====
 			else:
-				sys.stderr.write("Certificate is invalid\n")
-				sys.exit(1)
+				raise ValueError('Invalid pinned public key')
 		
 		#=====[ Check for valid common name ]=====
 		else: 
@@ -100,17 +98,18 @@ class Connection():
 			cert = self.client.get_peer_certificate()
 			common_name = cert.get_subject().commonName.decode()
 			regex = common_name.replace('.', r'\.').replace('*',r'[^\.]*') + '$'
-
 			if re.match(regex, HOST):
 				return 
 			else:
-				sys.stderr.write("Common name is invalid\n")
-				sys.exit(1)
+				raise ValueError('Mismatching common name')
 
-	def send(self, url):
+
+	def send(self, url, port=443):
+		""" Sends specified message; default is get request """
 
 		#=====[ Parse url ]=====
 		p_url = urlparse.urlparse(url)
+
 
 		path = p_url.path
 		if path == '':
@@ -120,13 +119,11 @@ class Connection():
 		HOST = p_url.netloc
 
 		message = "GET %s HTTP/1.0\nHost: %s\nUser-Agent: KDOandBGAR/1.0\r\n\r\n" % (path, HOST)
-		""" Sends specified message; default is get request """
-
 		#=====[ Send request ]=====
 		self.client.send(message)
 		
 		#=====[ Print data while server has data to write ]=====
-		data = self.client.recv(1000000)
+		data = self.client.recv(100000000)
 		print data[data.index('\r\n\r\n'):].strip()
 
 	def kill(self):
@@ -150,12 +147,10 @@ class Connection():
 
 				date = datetime.datetime(int(raw_date[0:4]),int(raw_date[4:6]),int(raw_date[6:8]),int(raw_date[8:10]),int(raw_date[10:12]),int(raw_date[12:14]))
 				delta = datetime.timedelta(self.num_days)
-				print date 
-				print delta 
+
 				#=====[ If grace period is substantial enough, return 1 ]=====
 				if datetime.datetime.now() > date + delta:
-					sys.stderr.write("Certificate is invalid\n")
-					sys.exit(1)
+					return False
 				else:
 					ok = True
 
@@ -170,20 +165,9 @@ class Connection():
 					
 					#=====[ Check if serial number equals that of revoked cert ]=====
 					if serial_number == int(cert.get_serial(),16):
-						sys.stderr.write("Certificate is invalid\n")
-						sys.exit(1)
+						return False
 
 			return True
 
 		else:
 			return False
-
-
-
-
-#=====[ Code we'll probably need at some point ]=====
-# context.set_verify(SSL.VERIFY_NONE, verify)
-# context.set_passwd_cb(password_callback)
-# context.use_certificate_file('cert')
-# context.use_privatekey_file('key')
-# Context.set_cipher_list(ciphers)
