@@ -112,8 +112,7 @@ if __name__ == "__main__":
 		scurl.kill()
 	
 	except Exception as e:
-
-		sys.stderr.write("Invalid certifate\n")
+		sys.stderr.write(str(e) + '\n')
 		sys.exit(1)
 
 	sys.exit(0)
