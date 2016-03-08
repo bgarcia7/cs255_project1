@@ -90,6 +90,7 @@ if __name__ == "__main__":
 		#=====[ Get url and options ]=====	
 		url = sys.argv[-1]
 		if 'https:' not in url:
+			print 'hi'
 			raise ValueError('Must use https scheme')
 
 		flags = sys.argv[1:-1]

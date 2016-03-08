@@ -9,10 +9,6 @@ import sys
 modes = ['tlsv1.0','tlsv1.1','tlsv1.2','sslv3','3']
 mode = 'tlsv1.2'
 
-#=====[ Load ciphers ]=====
-# supp_ciphers = open('ciphers.txt','rb')
-# supp_ciphers = supp_ciphers.read().replace('\n','').split(':')
-
 def parse_flags(flags, mode):
 
 	values = {}
@@ -62,6 +58,7 @@ def parse_flags(flags, mode):
 				idx+=1
 				crl_file = open(flags[idx])
 				values['crl_str'] = crl_file.read()
+				crl_file.close()
 				idx+=1
 
 			elif flag == 'pinnedpublickey':
@@ -69,6 +66,7 @@ def parse_flags(flags, mode):
 				idx+=1
 				pub_file = open(flags[idx])
 				values['pub_str'] = pub_file.read()
+				pub_file.close()
 				idx+=1
 
 			
@@ -91,6 +89,9 @@ if __name__ == "__main__":
 	try:
 		#=====[ Get url and options ]=====	
 		url = sys.argv[-1]
+		if 'https:' not in url:
+			raise ValueError('Must use https scheme')
+
 		flags = sys.argv[1:-1]
 		initializations = parse_flags(flags, mode)
 
