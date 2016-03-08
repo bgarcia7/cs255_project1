@@ -147,8 +147,19 @@ class Connection():
 		self.client.send(message)
 		
 		#=====[ Print data while server has data to write ]=====
-		data = self.client.recv(100000000)
-		print data[data.index('\r\n\r\n'):].strip()
+		header = True
+
+		while(True):
+			try:
+				data = self.client.recv(4096)
+				if header:
+					print data[data.index('\r\n\r\n'):].strip()
+					header = False
+				else:
+					print data
+			except SSL.ZeroReturnError:
+				break
+			
 
 	def kill(self):
 
