@@ -173,7 +173,6 @@ class Connection():
 		
 		#=====[ Check if cert expired (but still valid) ]=====
 		if not ok:
-
 			#=====[ Check if certificate out of date and user invoked --allow-stale-certs ]=====
 			if errnum == 10 and self.num_days:
 				
@@ -185,7 +184,7 @@ class Connection():
 
 				#=====[ If grace period is substantial enough, return 1 ]=====
 				if datetime.datetime.now() > date + delta:
-					return False
+					raise ValueError('Expiration date surpassed grace period')
 				else:
 					ok = True
 
@@ -200,9 +199,11 @@ class Connection():
 					
 					#=====[ Check if serial number equals that of revoked cert ]=====
 					if serial_number == int(cert.get_serial(),16):
-						return False
+						raise ValueError('Cert located within CRL')
+
 
 			return True
 
 		else:
-			return False
+			raise ValueError('Invalid Certificate')
+
