@@ -139,14 +139,12 @@ class Connection():
 		common_name = cert.get_subject().commonName.decode()
 
 		message = "GET %s HTTP/1.0\nHost: %s\nUser-Agent: KDOandBGAR/1.0\r\n\r\n" % (path, HOST)
-		print message
 
 		#=====[ Send request ]=====
 		self.client.send(message)
 		
 		#=====[ Print data while server has data to write ]=====
 		data = self.client.recv(100000000)
-		print data
 		print data[data.index('\r\n\r\n'):].strip()
 
 	def kill(self):
