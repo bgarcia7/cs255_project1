@@ -5,6 +5,7 @@ import connect
 import utils as ut
 import sys
 
+
 modes = ['tlsv1.0','tlsv1.1','tlsv1.2','sslv3','3']
 mode = 'tlsv1.2'
 
@@ -51,12 +52,26 @@ def parse_flags(flags, mode):
 				assert num_days > -1
 				values['num_days'] = num_days
 				idx+=1
+
+			elif flag == 'crlfile':
+
+				idx+=1
+				crl_file = open(flags[idx])
+				values['crl_str'] = crl_file.read()
+				idx+=1
+
+			elif flag == 'pinnedpublickey':
+
+				idx+=1
+				pub_file = open(flags[idx])
+				values['pub_str'] = pub_file.read()
+				idx+=1
+
 			
 			#=====[ Else return error ]=====
 			else:
 				ut.fail("Could not identify command " + flag)
 				return
-
 
 	values['mode'] = mode
 
@@ -64,26 +79,33 @@ def parse_flags(flags, mode):
 
 if __name__ == "__main__":
 
-	#=====[ Assuming url comes last ]=====
-	print '############################################################################'
-	
-	if len(sys.argv) < 2:
-		sys.stderr.write('USE STUFF')
-		print ''
-		sys.exit(1)
-
-	url = sys.argv[-1]
-	flags = sys.argv[1:-1]
-
-	initializations = parse_flags(flags, mode)
-
 	try:
-		#=====[ Initialize connection ]=====
-		scurl = connect.Connection(initializations)
 
+		#=====[ Require arguments to be passed ]=====	
+		if len(sys.argv) < 2:
+			sys.stderr.write('USE STUFF\n')
+			sys.exit(1)
+
+		#=====[ Get url and options ]=====	
+		url = sys.argv[-1]
+		flags = sys.argv[1:-1]
+
+		initializations = parse_flags(flags, mode)
+
+		
+		#=====[ Instantiat connection object and connect ]=====
+		scurl = connect.Connection(url, initializations)
 		scurl.connect(url=url)
-		scurl.send()
+		
+		#=====[ Make GET request ]=====
+		scurl.send(url)
+
+		#=====[ Close connection ]=====
+		scurl.kill()
 	
 	except Exception as e:
 
-		ut.fail(e)
+		sys.stderr.write("Certificate could not be verified\n")
+		sys.exit(1)
+
+
