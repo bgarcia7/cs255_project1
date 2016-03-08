@@ -99,9 +99,12 @@ class Connection():
 			
 			#=====[ Extract ASNs ]=====
 			try:
-				ASN = cert.get_extension(8)
-				ASNs = ASN._subjectAltNameString().replace('DNS:','').split(',')
-			
+				num_exts = cert.get_extension_count()
+				for idx in range(num_exts):
+					ASN = cert.get_extension(8)
+					if ASN.get_short_name() == 'subjectAltName':
+						ASNs = ASN._subjectAltNameString()
+						ASNs = ASNs.replace('DNS:','').split(',')
 			except Exception as e:
 				pass
 
