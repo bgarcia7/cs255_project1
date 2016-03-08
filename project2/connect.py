@@ -153,12 +153,11 @@ class Connection():
 			try:
 				data = self.client.recv(4096)
 				if header:
-					sys.stdout.write(data[data.index('\r\n\r\n'):].strip())
+					sys.stdout.write(data[data.index('\r\n\r\n')+len('\r\n\r\n'):])
 					header = False
 				else:
 					sys.stdout.write(data)
 			except SSL.ZeroReturnError:
-				print
 				break
 			
 
