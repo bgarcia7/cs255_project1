@@ -73,6 +73,7 @@ class Connection():
 			port = p_url.port
 
 		#=====[ Get remote host ]=====
+
 		HOST = p_url.netloc
 		HOST_NAME = p_url.hostname  
 
@@ -124,10 +125,9 @@ class Connection():
 			else:
 				#=====[ Check for matches in ASNs ]=====
 				for name in ASNs:
-					name = name.replace('*','')
-					if name in HOST_NAME:
-						continue 
-					if re.match(regex,name):
+					regex = name.strip().replace('.', r'\.').replace('*',r'[^\.]*') + '$'
+					regex = regex.replace('[^\.]*\.',r'([^\.]*\.)?')
+					if re.match(regex, HOST_NAME):
 						return 
 
 			raise ValueError('Mismatching common name')
@@ -146,7 +146,6 @@ class Connection():
 
 		#=====[ Get remote host ]=====
 		HOST = p_url.netloc
-
 		cert = self.client.get_peer_certificate()
 		common_name = cert.get_subject().commonName.decode()
 
