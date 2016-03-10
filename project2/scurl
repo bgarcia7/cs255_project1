@@ -89,6 +89,9 @@ if __name__ == "__main__":
 		if 'https:' not in url:
 			raise ValueError('Must use https scheme')
 
+		if url.index('https:') is not 0:
+			raise ValueError('Invalid use of options')
+
 		flags = sys.argv[1:-1]
 		initializations = parse_flags(flags, mode)
 
