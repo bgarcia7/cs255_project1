@@ -1,0 +1,35 @@
+SPEC REQUIREMENTS:
+
+1) reject any url without https
+
+./scurl http://www.stanford.edu
+./scurl --ciphers DHE-DSS-AES256-SHA:DH-RSA-AES256-SHA http://wwww.stanford.edu
+
+2) no mode passed in, default ot tlsv1.2
+
+checked by printing default mode
+
+3) check 'list of cipher suites supported on your machine'
+
+./scurl --ciphers DHE-DSS-AES256-SHA:DH-RSA-AES256-SHA https://wwww.stanford.edu 
+curl --ciphers DHE-DSS-AES256-SHA:DH-RSA-AES256-SHA https://wwww.stanford.edu
+
+4) check that errnum 10 == valid except expired
+
+https://www.openssl.org/docs/manmaster/apps/verify.html
+I think we're ok
+
+5) --pinnedpublic key overrides --cacert and --crlfile
+
+--pinnedpublickey sanity_tests/tests/data/expired.pem https://expired.badssl.com/
+--cacert sanity_tests/data/stanford.pem --pinnedpublickey sanity_tests/data/expired.pem https://expired.badssl.com/
+--cacert sanity_tests/data/stanford.pem --pinnedpublickey sanity_tests/data/expired.pem https://expired.badssl.com/
+
+#=====[ Testing two pinned public keys ]=====
+
+./scurl --cacert sanity_tests/data/st --pinnedpublickey hisfdaklsdf --pinnedpublickey sanity_tests/data/expired.pem https://expired.badssl.com/
+
+
+6) behave like curl in handling combinations of options/args
+cipher s
+7) reject invalid certificates of all forms

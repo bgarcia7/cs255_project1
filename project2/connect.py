@@ -19,7 +19,6 @@ class Connection():
 		
 		context = SSL.Context(modes[values['mode']])
 		context.set_options(SSL.OP_NO_SSLv2)
-
 		
 		#=====[ Set list of ciphers to use ]=====
 		if 'ciphers' in values:
@@ -27,7 +26,11 @@ class Connection():
 
 		#=====[ Rehydrate public key certificate if given ]=====
 		if 'pub_str' in values:
-			self.pub_cert = crypto.load_certificate(crypto.FILETYPE_PEM, values['pub_str'])
+			pub_file = open(values['pub_str'],'rb')
+			pub_str = pub_file.read()
+			pub_file.close()
+
+			self.pub_cert = crypto.load_certificate(crypto.FILETYPE_PEM, pub_str)
 
 		#=====[ If no pub key certificate, look for other options ]=====
 		else:
@@ -48,7 +51,10 @@ class Connection():
 
 			#=====[ Load and set CRL ]=====
 			if 'crl_str' in values:
-				self.crl = crypto.load_crl(crypto.FILETYPE_PEM, values['crl_str'])
+				crl_file = open(values['crl_str'],'rb')
+				crl_str = crl_file.read()
+				crl_file.close(0)
+				self.crl = crypto.load_crl(crypto.FILETYPE_PEM, crl_str)
 			else:
 				self.crl = None
 		
