@@ -53,7 +53,7 @@ class Connection():
 			if 'crl_str' in values:
 				crl_file = open(values['crl_str'],'rb')
 				crl_str = crl_file.read()
-				crl_file.close(0)
+				crl_file.close()
 				self.crl = crypto.load_crl(crypto.FILETYPE_PEM, crl_str)
 			else:
 				self.crl = None
